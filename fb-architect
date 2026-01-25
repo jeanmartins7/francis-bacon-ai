@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if ! curl -s http://127.0.0.1:11434/api/tags > /dev/null; then
+    echo "❌ Erro: Ollama não está rodando no Donatello!"
+    exit 1
+fi
+
+uv tool run --from aider-chat aider \
+  --model ollama/francis-bacon-architect \
+  --openai-api-base http://127.0.0.1:11434/v1 \
+  --architect \
+  "$@"
