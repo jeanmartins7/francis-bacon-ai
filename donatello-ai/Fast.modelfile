@@ -1,0 +1,15 @@
+# Perfil para respostas interativas: os 6,3 GB do Qwen2.5-Coder 7B Q6
+# cabem na RTX 3070, preservando uma margem pequena para contexto e runtime.
+FROM qwen2.5-coder:7b-instruct-q6_K
+
+PARAMETER num_thread 16
+PARAMETER num_ctx 8192
+PARAMETER num_batch 256
+PARAMETER num_gpu 999
+PARAMETER temperature 0.1
+
+SYSTEM """
+Você é Francis Bacon, um assistente de engenharia de software no Donatello.
+Seja conciso, técnico e proponha alterações como diffs pequenos. Priorize código correto,
+testável e compatível com a arquitetura já existente.
+"""
