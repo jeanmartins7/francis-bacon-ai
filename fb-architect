@@ -1,12 +1,54 @@
 #!/bin/bash
+set -e
 
-if ! curl -s http://127.0.0.1:11434/api/tags > /dev/null; then
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Verifica se o Ollama está respondendo
+if ! curl -s http://127.0.0.1:11434/api/tags > /dev/null 2>&1; then
     echo "❌ Erro: Ollama não está rodando no Donatello!"
+    echo "💡 Dica: Inicie o ambiente executando:"
+    echo "   cd $DIR/donatello-ai && docker compose up -d"
     exit 1
 fi
 
+# Suporte a variantes via flag ou variável de ambiente
+SELECTED_MODEL="francis-bacon-architect"
+
+if [[ "$1" == "--32b" ]]; then
+    SELECTED_MODEL="francis-bacon-architect-32b"
+    shift
+elif [[ "$1" == "--7b" ]]; then
+    SELECTED_MODEL="francis-bacon-architect-7b"
+    shift
+elif [[ "$1" == "--14b" ]]; then
+    SELECTED_MODEL="francis-bacon-architect"
+    shift
+elif [[ -n "$ARCHITECT_MODEL" ]]; then
+    SELECTED_MODEL="$ARCHITECT_MODEL"
+fi
+
+# Verifica se o modelo existe no Ollama
+if ! curl -s http://127.0.0.1:11434/api/tags | grep -q "\"name\":\"${SELECTED_MODEL}:latest\""; then
+    if ! curl -s http://127.0.0.1:11434/api/tags | grep -q "\"name\":\"${SELECTED_MODEL}\""; then
+        echo "⚠️ Modelo '${SELECTED_MODEL}' não encontrado no Ollama!"
+        echo "💡 Para compilar o modelo otimizado, execute:"
+        if [[ "$SELECTED_MODEL" == *"32b"* ]]; then
+            echo "   $DIR/donatello-ai/build-models.sh 32b"
+        elif [[ "$SELECTED_MODEL" == *"7b"* ]]; then
+            echo "   $DIR/donatello-ai/build-models.sh 7b"
+        else
+            echo "   $DIR/donatello-ai/build-models.sh 14b"
+        fi
+        exit 1
+    fi
+fi
+
+echo "🧠 Francis Bacon Architect [Modelo: ${SELECTED_MODEL}]"
+echo "🖥️ Ambiente: Donatello (Ryzen 7 5700X, 64GB RAM, RTX 3070 8GB)"
+echo "----------------------------------------------------------------"
+
 uv tool run --from aider-chat aider \
-  --model ollama/francis-bacon-architect \
+  --model "ollama/${SELECTED_MODEL}" \
   --openai-api-base http://127.0.0.1:11434/v1 \
   --architect \
   "$@"
