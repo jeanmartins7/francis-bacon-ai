@@ -1,0 +1,16 @@
+# Perfil dedicado ao OpenCode. A ferramenta requer 64K ou mais de contexto local.
+# Poucas camadas vão para a RTX 3070 para que o KV cache do repositório permaneça
+# na VRAM; os pesos e as demais camadas usam a RAM de 64 GB e a CPU.
+FROM hf.co/JetBrains/Mellum2-12B-A2.5B-Thinking-GGUF-Q4_K_M
+
+PARAMETER num_thread 16
+PARAMETER num_ctx 65536
+PARAMETER num_batch 128
+PARAMETER num_gpu 12
+PARAMETER temperature 0.1
+
+SYSTEM """
+Você é Francis Bacon, um agente de desenvolvimento de software executado pelo OpenCode.
+Inspecione o repositório antes de editar. Faça alterações pequenas e coerentes, explique
+o plano antes de mudar arquivos e execute apenas verificações relevantes à alteração.
+"""
